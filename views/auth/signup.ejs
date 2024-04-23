@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Signup</title>
+    </head>
+    <body>
+        <header>
+            <h1>Login</h1>
+        </header>
+        <main>
+            <div>
+                <form action="/auth/signup" method="POST" id="signupForm">
+                    <div>
+                        <label for="name">Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            id="name"
+                            placeholder="Name *optional"
+                        />
+                    </div>
+                    <div>
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            name="username"
+                            id="username"
+                            placeholder="Username"
+                            required
+                        />
+                    </div>
+                    <div>
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            name="email"
+                            id="email"
+                            placeholder="Email *optional"
+                        />
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input
+                            type="password"
+                            name="password"
+                            id="password"
+                            required
+                        />
+                    </div>
+                    <button>Signup</button>
+                </form>
+            </div>
+            <div>
+                <p>Have an account?</p>
+                <a href="/auth/login">Login</a>
+            </div>
+        </main>
+    </body>
+    <script>
+        const form = document.getElementById("signupForm");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch("/auth/signup", {
+                method: "POST",
+                body: formData,
+            });
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+            } else {
+                alert(data.message);
+                window.location.href = "/auth/login";
+            }
+        });
+    </script>
+</html>
