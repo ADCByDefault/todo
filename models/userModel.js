@@ -1,4 +1,3 @@
-//Not done yet
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 
@@ -27,11 +26,6 @@ const userSchema = new mongoose.Schema(
         },
         name: { type: String },
         email: { type: String },
-        todos: [
-            {
-                //todo list
-            },
-        ],
     },
     {
         timestamps: true,
