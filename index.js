@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 
 // Mongoose connection
 try {
-    await mongoose.connect("mongodb://localhost:27017/localconnection/todo");
+    await mongoose.connect("mongodb://localhost:27017/todo");
 } catch (error) {
     exit("Could not connect to MongoDB, closing App...\n" + error);
 }

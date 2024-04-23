@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: [true, "Username is required!"],
             unique: true,
+            trim: true,
             validate: {
                 validator: function (value) {},
                 message: (props) => `${props.value} is not a valid username!`,
@@ -24,8 +25,8 @@ const userSchema = new mongoose.Schema(
                 message: (props) => `Password is not valid!`,
             },
         },
-        name: { type: String },
-        email: { type: String },
+        name: { type: String, trim: true, default: "" },
+        email: { type: String, trim: true, default: "" },
     },
     {
         timestamps: true,

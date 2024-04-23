@@ -7,49 +7,54 @@
     </head>
     <body>
         <header>
-            <h1>Login</h1>
+            <h1>Signup</h1>
         </header>
         <main>
+            <div>
+                <p id="generalError"></p>
+            </div>
             <div>
                 <form action="/auth/signup" method="POST" id="signupForm">
                     <div>
                         <label for="name">Name</label>
-                        <input
-                            type="text"
-                            name="name"
-                            id="name"
-                            placeholder="Name *optional"
-                        />
                     </div>
+                    <input
+                        type="text"
+                        name="name"
+                        id="name"
+                        placeholder="Name *optional"
+                    />
                     <div>
                         <label for="username">Username</label>
-                        <input
-                            type="text"
-                            name="username"
-                            id="username"
-                            placeholder="Username"
-                            required
-                        />
                     </div>
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
+                        placeholder="Username"
+                        required
+                    />
                     <div>
                         <label for="email">Email</label>
-                        <input
-                            type="email"
-                            name="email"
-                            id="email"
-                            placeholder="Email *optional"
-                        />
                     </div>
+                    <input
+                        type="email"
+                        name="email"
+                        id="email"
+                        placeholder="Email *optional"
+                    />
                     <div>
                         <label for="password">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            id="password"
-                            required
-                        />
                     </div>
-                    <button>Signup</button>
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        required
+                    />
+                    <div>
+                        <button>Signup</button>
+                    </div>
                 </form>
             </div>
             <div>
@@ -59,21 +64,60 @@
         </main>
     </body>
     <script>
+        const generalError = document.getElementById("generalError");
+        const inputs = Array.from(document.querySelectorAll("input"));
         const form = document.getElementById("signupForm");
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const formData = new FormData(form);
+            clearErrors();
+            const formData = getFormData(form);
             const response = await fetch("/auth/signup", {
                 method: "POST",
-                body: formData,
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
             });
             const data = await response.json();
+            console.log(data);
             if (data.error) {
-                alert(data.error);
-            } else {
-                alert(data.message);
-                window.location.href = "/auth/login";
+                displayErrors(data.error.errors);
+                return;
             }
+            window.location.replace("/auth/login");
         });
+        function getFormData(form) {
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            return data;
+        }
+        function clearErrors() {
+            generalError.textContent = "";
+            const errors = document.querySelectorAll("[data-error]");
+            errors.forEach((error) => {
+                error.remove();
+            });
+        }
+        function displayErrors(errors) {
+            if (errors.general) {
+                generalError.textContent = errors.general;
+            }
+            Object.keys(errors).forEach((error) => {
+                const errorValue = errors[error].message;
+                const i = document.getElementById(error);
+                if (i) {
+                    const div = document.createElement("div");
+                    div.setAttribute("data-error", "true");
+                    div.classList.add("error");
+                    div.textContent = errorValue;
+                    i.insertAdjacentElement("afterend", div);
+                } else {
+                    console.log(error, errorValue);
+                }
+            });
+        }
     </script>
 </html>
