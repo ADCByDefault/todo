@@ -14,9 +14,8 @@ async function createUser(req, res) {
     try {
         const user = new userModel({ username, password, name, email });
         await user.save();
-        ret = { created: true, user_id: user._id };
+        ret = { created: true, user_id: user._id, user: user };
     } catch (error) {
-        console.log(error);
         if (error.code === 11000) {
             error.errors = {
                 ...error.errors,
@@ -24,6 +23,32 @@ async function createUser(req, res) {
             };
         }
         ret = { created: false, error: error };
+    }
+    return ret;
+}
+async function findUser(username) {
+    let ret = {
+        doesExist: false,
+        user: null,
+        error: { errors: {} },
+    };
+    if (!username || username === "") {
+        ret.error.errors.username = { message: "Username is required!" };
+        return ret;
+    }
+    try {
+        const user = await userModel.findOne({ username: username });
+        if (user) {
+            ret.doesExist = true;
+            ret.user = user;
+            delete ret.error;
+        } else {
+            ret.error.errors.username = { message: "Username does not exist!" };
+        }
+    } catch (error) {
+        ret.error.errors.general = {
+            message: "An error occurred while finding the user",
+        };
     }
     return ret;
 }
@@ -35,7 +60,7 @@ const controller = {
      * @param {express.Response} res
      */
     loginGet: async function (req, res) {
-        res.render("auth/login");
+        res.render("auth/login", { context: {} });
     },
     /**
      *
@@ -43,7 +68,7 @@ const controller = {
      * @param {express.Response} res
      */
     signupGet: async function (req, res) {
-        res.render("auth/signup");
+        res.render("auth/signup", { context: {} });
     },
     /**
      *
@@ -51,7 +76,31 @@ const controller = {
      * @param {express.Response} res
      */
     loginPost: async function (req, res) {
-        res.send("Login POST");
+        const { username, password } = req.body;
+        const user = await findUser(username);
+        if (!user.doesExist) {
+            res.status(404);
+            res.send(user);
+            return;
+        }
+        const ret = await authMiddleware.authenticate(user.user, password, req);
+        if (ret.isAuthenticated) {
+            res.status(200);
+            res.cookie("token", ret.token, {
+                httpOnly: true,
+                maxAge: 86400000,
+            });
+            res.cookie("_id", user.user._id, {
+                maxAge: 86400000,
+            });
+            res.cookie("isAuthenticated", true, {
+                maxAge: 86400000,
+            });
+        } else {
+            res.status(401);
+        }
+        delete ret.token;
+        res.send(ret);
     },
     /**
      *

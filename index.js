@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 // Routes
 import indexRouter from "./routes/indexRouter.js";
 import authRouter from "./routes/authRouter.js";
@@ -11,9 +12,11 @@ const app = express();
 // Middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(logRequest);
-// View Engine
+// Conf
 app.set("view engine", "ejs");
+app.set("trust proxy", true);
 // Routes
 app.use(indexRouter);
 app.use("/auth", authRouter);

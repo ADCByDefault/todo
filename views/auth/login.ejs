@@ -11,10 +11,18 @@
         </header>
         <main>
             <div>
-                <form action="/auth/login" method="POST">
+                <p id="generalError"></p>
+            </div>
+            <div>
+                <form action="/auth/login" method="POST" id="loginForm">
                     <div>
-                        <label for="email">Email</label>
-                        <input type="email" name="email" id="email" required />
+                        <label for="username">Username</label>
+                        <input
+                            type="text"
+                            name="username"
+                            id="username"
+                            required
+                        />
                     </div>
                     <div>
                         <label for="password">Password</label>
@@ -34,4 +42,61 @@
             </div>
         </main>
     </body>
+    <script>
+        const form = document.getElementById("loginForm");
+        const generalError = document.getElementById("generalError");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearErrors();
+            const data = getFormData(form);
+            const res = await fetch("/auth/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            const json = await res.json();
+            if (json.error) {
+                displayErrors(json.error.errors);
+                return;
+            }
+            if (json.isAuthenticated) {
+                window.location.replace("/dashboard");
+            }
+        });
+        function getFormData(form) {
+            const formData = new FormData(form);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            return data;
+        }
+        function clearErrors() {
+            generalError.textContent = "";
+            const errors = document.querySelectorAll("[data-error]");
+            errors.forEach((error) => {
+                error.remove();
+            });
+        }
+        function displayErrors(errors) {
+            if (errors.general) {
+                generalError.textContent = errors.general.message;
+            }
+            Object.keys(errors).forEach((error) => {
+                const errorValue = errors[error].message;
+                const i = document.getElementById(error);
+                if (i) {
+                    const div = document.createElement("div");
+                    div.setAttribute("data-error", "true");
+                    div.classList.add("error");
+                    div.textContent = errorValue;
+                    i.insertAdjacentElement("afterend", div);
+                } else {
+                    console.log(error, errorValue);
+                }
+            });
+        }
+    </script>
 </html>

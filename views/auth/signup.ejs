@@ -103,7 +103,7 @@
         }
         function displayErrors(errors) {
             if (errors.general) {
-                generalError.textContent = errors.general;
+                generalError.textContent = errors.general.message;
             }
             Object.keys(errors).forEach((error) => {
                 const errorValue = errors[error].message;
