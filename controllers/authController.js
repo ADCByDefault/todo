@@ -90,9 +90,6 @@ const controller = {
                 httpOnly: true,
                 maxAge: 86400000,
             });
-            res.cookie("_id", user.user._id, {
-                maxAge: 86400000,
-            });
             res.cookie("isAuthenticated", true, {
                 maxAge: 86400000,
             });
@@ -115,6 +112,18 @@ const controller = {
             res.status(400);
         }
         res.send(ret);
+    },
+    /**
+     *
+     * @param {express.Request} req
+     * @param {express.Response} res
+     */
+    logoutGet: async function (req, res) {
+        const token = req.cookies.token;
+        authMiddleware.removeToken(token);
+        res.clearCookie("token");
+        res.clearCookie("isAuthenticated");
+        res.redirect("/");
     },
 };
 
