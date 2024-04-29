@@ -16,13 +16,13 @@ const Schema = new mongoose.Schema(
             enum: statusEnum,
             default: statusEnum[0],
         },
-        dueDate: {
+        dueTo: {
             type: Date,
         },
         priority: {
             type: Number,
-            min: [1, "Priority must be between 1 and 5"],
-            max: [5, "Priority must be between 1 and 5"],
+            min: [1, "Priority must be between 1 and 3"],
+            max: [3, "Priority must be between 1 and 3"],
         },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
